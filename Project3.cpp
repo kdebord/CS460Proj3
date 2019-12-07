@@ -21,7 +21,6 @@ int main (int argc, char * argv[])
 		exit (1);
 	}
 	SetLimits ();
-	CodeGen cg(argv[1]);
 	SyntacticalAnalyzer parse (argv[1]);
 
 	return 0;

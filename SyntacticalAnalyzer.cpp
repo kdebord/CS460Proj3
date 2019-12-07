@@ -33,6 +33,7 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 	}
 
 	lex = new LexicalAnalyzer (filename);
+	CodeGen cg(filename);
 	token_type t;
 	int totalErrors = program ();
 }

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include "LexicalAnalyzer.h"
+#include "CodeGenerator.h"
 
 using namespace std;
 
