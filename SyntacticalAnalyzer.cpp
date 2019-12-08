@@ -33,7 +33,8 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 	}
 
 	lex = new LexicalAnalyzer (filename);
-	CodeGen cg(filename);
+	cg = new CodeGen (filename);
+	deque<string> tempobj;
 	token_type t;
 	int totalErrors = program ();
 }
@@ -41,6 +42,7 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 SyntacticalAnalyzer::~SyntacticalAnalyzer ()
 {
 	delete lex;
+	delete cg;
 }
 
 // -------------------------------------------------------------------------------------------------------------
@@ -108,9 +110,22 @@ int SyntacticalAnalyzer::define () {
 	//	errors++;
 	//	lex->ReportError("IDENT_T expected");
 	//}
-
+	bool is_main;
 	if(token == IDENT_T) {
+		if(lex->GetLexeme() == "main")
+		{
+			cg->WriteCode(0 ,"int main()\n{\n");
+			is_main = true;
+		}
+		else
+		{
+			cg->WriteCode(0, "Object ");
+			cg->WriteCode(0, lex->GetLexeme());
+			cg->WriteCode(0, " ()\n{");
+		}
+
 		token = lex->GetToken();
+		
 	} else {
 		errors++;
 		lex->ReportError("IDENT_T expected");
@@ -135,7 +150,11 @@ int SyntacticalAnalyzer::define () {
 		errors++;
 		lex->ReportError("\')\' expected");
 	}
-	
+	if(is_main == true)
+		cg->WriteCode(1, "return 0;\n");
+	else
+		cg->WriteCode(1, "return _RetVal;\n");
+	cg->WriteCode(0,"}\n\n");	
 	return errors;
 }
 
@@ -228,6 +247,14 @@ int SyntacticalAnalyzer::action () {
 		p2 << "Using rule 36\n";
 		token = lex->GetToken();
 		errors += stmt_list();
+		
+		cg->WriteCode(0, tempobj.front());
+		tempobj.pop_front();
+		cg->WriteCode(0, " + ");
+		cg->WriteCode(0, tempobj.front());
+		tempobj.pop_front();
+		cg->WriteCode(0,";\n");
+
 	}
 	else if(token == MINUS_T){
 		// <action> -> MINUS_T <stmt>
@@ -301,12 +328,15 @@ int SyntacticalAnalyzer::action () {
 	else if(token == DISPLAY_T){
 		// <action> -> DISPLAY_T <stmt>
 		p2 << "Using rule 48\n";
+		//print a cout for display
+		cg->WriteCode(1,"cout << ");
 		token = lex->GetToken();
 		errors += stmt();
 	}
 	else if(token == NEWLINE_T){
 		// <action> -> NEWLINE_T
 		p2 << "Using rule 49\n";
+		cg->WriteCode(1,"cout << endl;\n");
 		token = lex->GetToken();
 	} else {
 		errors++;
@@ -542,11 +572,18 @@ int SyntacticalAnalyzer::literal(){
     if(token == NUMLIT_T){
       // <literal> -> NUMLIT_T
       p2 << "Using rule 10\n";
+	  string temp = "Object(" + lex->GetLexeme() + ")";
+	  tempobj.push_back(temp);
+	  //cg->WriteCode(0,"Object(");
+	  //cg->WriteCode(0,lex->GetLexeme());
+	  //cg->WriteCode(0,")");
       token = lex->GetToken();
     }
     else if(token == STRLIT_T){
       // <literal> -> STRLIT_T
       p2 << "Using rule 11\n";
+	  string temp = "Object(" + lex->GetLexeme() + ")";
+	  tempobj.push_back(temp);
       token = lex->GetToken();
     }
     else if(token == SQUOTE_T){

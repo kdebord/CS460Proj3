@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <deque>
 #include "LexicalAnalyzer.h"
 #include "CodeGenerator.h"
 
@@ -23,6 +24,7 @@ class SyntacticalAnalyzer
 	~SyntacticalAnalyzer ();
     private:
 	LexicalAnalyzer * lex;
+	CodeGen * cg;
 	token_type token;
 	int program ();
 	int more_defines ();
@@ -40,6 +42,7 @@ class SyntacticalAnalyzer
 	int any_other_token ();
 
 	ofstream p2;
+	deque<string> tempobj;
 };
 	
 #endif
