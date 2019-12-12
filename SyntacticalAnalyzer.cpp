@@ -122,6 +122,8 @@ int SyntacticalAnalyzer::define () {
 			cg->WriteCode(0, "Object ");
 			cg->WriteCode(0, lex->GetLexeme());
 			cg->WriteCode(0, " ()\n{");
+			cg->WriteCode(1, "Object __RetVal;\n");
+			cg->WriteCode(1, "__RetVal = ");
 		}
 
 		token = lex->GetToken();
@@ -153,7 +155,7 @@ int SyntacticalAnalyzer::define () {
 	if(is_main == true)
 		cg->WriteCode(1, "return 0;\n");
 	else
-		cg->WriteCode(1, "return _RetVal;\n");
+		cg->WriteCode(1, "return __RetVal;\n");
 	cg->WriteCode(0,"}\n\n");	
 	return errors;
 }
@@ -184,15 +186,20 @@ int SyntacticalAnalyzer::action () {
 	else if(token == LISTOP1_T){
 		//<action> -> LISTOP1_T <stmt>
 		p2 << "Using rule 26\n";
+		cg->WriteCode(0, "listop (\"" + lex->GetLexeme() + "\", ");
 		token = lex->GetToken();
 		errors += stmt();
+		cg->WriteCode(0, " )");
 	}
 	else if(token == LISTOP2_T){
 		// <action> -> LISTOP2_T <stmt> <stmt>
 		p2 << "Using rule 27\n";
+		cg->WriteCode(0, "listop (\"" + lex->GetLexeme() + "\", ");
 		token = lex->GetToken();
 		errors += stmt();
+		cg->WriteCode(0, ", ");
 		errors += stmt();
+		cg->WriteCode(0, ");\n");
 	}
 	else if(token == AND_T){
 		// <action> -> AND_T <stmt_list>
@@ -262,6 +269,13 @@ int SyntacticalAnalyzer::action () {
 		token = lex->GetToken();
 		errors += stmt();
 		errors += stmt_list();
+		cg->WriteCode(0, tempobj.front());
+		tempobj.pop_front();
+		cg->WriteCode(0, " - ");
+		cg->WriteCode(0, tempobj.front());
+		tempobj.pop_front();
+		cg->WriteCode(0,";\n");
+
 	}
 	else if(token == DIV_T){
 		// <action> -> DIV_T <stmt>
@@ -269,12 +283,24 @@ int SyntacticalAnalyzer::action () {
 		token = lex->GetToken();
 		errors += stmt();
 		errors += stmt_list();
+		cg->WriteCode(0, tempobj.front());
+		tempobj.pop_front();
+		cg->WriteCode(0, " / ");
+		cg->WriteCode(0, tempobj.front());
+		tempobj.pop_front();
+		cg->WriteCode(0,";\n");
 	}
 	else if(token == MULT_T){
 		// <action> -> MULT_T
 		p2 << "Using rule 39\n";
 		token = lex->GetToken();
 		errors += stmt_list();
+		cg->WriteCode(0, tempobj.front());
+		tempobj.pop_front();
+		cg->WriteCode(0, " * ");
+		cg->WriteCode(0, tempobj.front());
+		tempobj.pop_front();
+		cg->WriteCode(0,";\n");
 	}
 	else if(token == MODULO_T){
 		// <action> -> MODULO_T <stmt> <stmt>
@@ -322,6 +348,7 @@ int SyntacticalAnalyzer::action () {
 	else if(token == IDENT_T){
 		// <action> -> LTE_T
 		p2 << "Using rule 47\n";
+		cg->WriteCode(0,lex->GetLexeme() + "();\n");
 		token = lex->GetToken();
 		errors += stmt_list();
 	}
@@ -590,7 +617,9 @@ int SyntacticalAnalyzer::literal(){
       // <literal> -> SQUOTE_T <quoted_lit>
       p2 << "Using rule 12\n";
       token = lex-> GetToken();
+	  cg->WriteCode(0, "Object(\"(");
       errors += quoted_lit();
+	  cg->WriteCode(0, ")\")");
     }
     else{
       errors++;
@@ -740,6 +769,7 @@ int SyntacticalAnalyzer::more_tokens ()
 	{
 		// <more_tokens> -> <any_other_token> <more_tokens>
 		p2 << "Using rule 14\n";
+		cg->WriteCode(0, lex->GetLexeme() + " ");
 		errors += any_other_token();
 		errors += more_tokens();
 	} else if(token == RPAREN_T){

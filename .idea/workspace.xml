@@ -10,13 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9656fc6b-b4b8-4b48-9a47-17a8fc4fa6b2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/CodeGenerator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/CodeGenerator.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LexicalAnalyzer.h" beforeDir="false" afterPath="$PROJECT_DIR$/LexicalAnalyzer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Object.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Object.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Project2.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Project2.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SetLimits.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SetLimits.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SyntacticalAnalyzer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SyntacticalAnalyzer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/makefile" beforeDir="false" afterPath="$PROJECT_DIR$/makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/test.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,10 +29,8 @@
   <component name="ProjectConfigurationFiles">
     <option name="files">
       <list>
-        <option value="$PROJECT_DIR$/.idea/CS460Proj3.iml" />
-        <option value="$PROJECT_DIR$/.idea/misc.xml" />
         <option value="$PROJECT_DIR$/.idea/vcs.xml" />
-        <option value="$PROJECT_DIR$/.idea/modules.xml" />
+        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
       </list>
     </option>
   </component>
@@ -69,6 +63,7 @@
       <option name="presentableId" value="Default" />
       <updated>1575761631903</updated>
       <workItem from="1575761633215" duration="345000" />
+      <workItem from="1575934258823" duration="921000" />
     </task>
     <servers />
   </component>
@@ -83,7 +78,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
