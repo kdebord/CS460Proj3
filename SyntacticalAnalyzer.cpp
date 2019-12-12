@@ -41,7 +41,8 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 	div_helper = false;
 	minus_helper = false;
 	is_num = false;
-
+	mult_param = false;
+	is_nested = false;
 	int totalErrors = program ();
 }
 
@@ -261,7 +262,13 @@ int SyntacticalAnalyzer::action () {
 		token = lex->GetToken();
 		plus_helper = true;
 		is_num = true;
+		mult_param = true;
 		errors += stmt_list();
+		if(is_nested == true)
+		{
+			cg->WriteCode(0, ")");
+			is_nested = false;
+		}
 		is_num = false;
 
 	}
@@ -273,6 +280,11 @@ int SyntacticalAnalyzer::action () {
 		is_num = true;
 		errors += stmt();
 		errors += stmt_list();
+		if(is_nested == true)
+		{
+			cg->WriteCode(0, ")");
+			is_nested = false;
+		}
 		is_num = false;
 
 	}
@@ -284,6 +296,11 @@ int SyntacticalAnalyzer::action () {
 		is_num = true;
 		errors += stmt();
 		errors += stmt_list();
+		if(is_nested == true)
+		{
+			cg->WriteCode(0, ")");
+			is_nested = false;
+		}
 		is_num = false;
 	}
 	else if(token == MULT_T){
@@ -293,6 +310,11 @@ int SyntacticalAnalyzer::action () {
 		mult_helper = true;
 		is_num = true;
 		errors += stmt_list();
+		if(is_nested == true)
+		{
+			cg->WriteCode(0, ")");
+			is_nested = false;
+		}
 		is_num = false;
 	}
 	else if(token == MODULO_T){
@@ -592,12 +614,20 @@ int SyntacticalAnalyzer::literal(){
     if(token == NUMLIT_T){
       // <literal> -> NUMLIT_T
       p2 << "Using rule 10\n";
-	  string temp = "Object(" + lex->GetLexeme() + ")";
-	
+
+
+
 	  cg->WriteCode(0,"Object(");
 	  cg->WriteCode(0,lex->GetLexeme());
 	  cg->WriteCode(0,")");
-	  if(plus_helper == true) {
+	
+      token = lex->GetToken();
+	  if(token == RPAREN_T)
+	  {
+		  mult_param = false;
+	  }
+	  if(mult_param == true) {
+		  
 		cg->WriteCode(0, " + ");
 		plus_helper = false;
 	  }
@@ -614,7 +644,7 @@ int SyntacticalAnalyzer::literal(){
 		div_helper = false;
 	  }
 
-      token = lex->GetToken();
+      //token = lex->GetToken();
     }
     else if(token == STRLIT_T){
       // <literal> -> STRLIT_T
@@ -656,15 +686,16 @@ int SyntacticalAnalyzer::stmt_list (){
     // <stmt_list> -> <stmt> <stmt_list>
     p2 << "Using rule 5\n";
 	if(token == LPAREN_T && is_num == true)
+	{
+		is_nested = true;
 		cg->WriteCode (0, "(");
-    errors += stmt();
+	}
+	errors += stmt();
     errors += stmt_list();
   }
   else if(token == RPAREN_T){
     // <stmt_list> -> {}
-    p2 << "Using rule 6\n";
-	if(is_num == true)
-		cg->WriteCode(0, ")");
+	    p2 << "Using rule 6\n";
   }
   else{
     errors++;
@@ -689,7 +720,9 @@ int SyntacticalAnalyzer::stmt (){
     errors += action();
 
     if(token == RPAREN_T)
+	{
       token = lex -> GetToken();
+	}
     else {
       errors++;
       lex->ReportError(") expected");

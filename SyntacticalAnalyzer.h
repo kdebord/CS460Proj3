@@ -46,6 +46,8 @@ class SyntacticalAnalyzer
 	bool div_helper;
 	bool minus_helper;
 	bool is_num;
+	bool mult_param;
+	bool is_nested;
 	ofstream p2;
 	deque<string> tempobj;
 };
