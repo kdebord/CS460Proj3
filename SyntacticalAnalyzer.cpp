@@ -36,6 +36,12 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 	cg = new CodeGen (filename);
 	deque<string> tempobj;
 	token_type t;
+	plus_helper = false;
+	mult_helper = false;
+	div_helper = false;
+	minus_helper = false;
+	is_num = false;
+
 	int totalErrors = program ();
 }
 
@@ -178,7 +184,7 @@ int SyntacticalAnalyzer::action () {
 			token = lex->GetToken();
 			// errors += stmt_pair_body();
 		} else {
-			errors++;
+
 			lex->ReportError("( expected");
 		}
 		errors += stmt_pair_body();
@@ -253,54 +259,41 @@ int SyntacticalAnalyzer::action () {
 		// <action> -> PLUS_T 
 		p2 << "Using rule 36\n";
 		token = lex->GetToken();
+		plus_helper = true;
+		is_num = true;
 		errors += stmt_list();
-		
-		cg->WriteCode(0, tempobj.front());
-		tempobj.pop_front();
-		cg->WriteCode(0, " + ");
-		cg->WriteCode(0, tempobj.front());
-		tempobj.pop_front();
-		cg->WriteCode(0,";\n");
+		is_num = false;
 
 	}
 	else if(token == MINUS_T){
 		// <action> -> MINUS_T <stmt>
 		p2 << "Using rule 37\n";
 		token = lex->GetToken();
+		minus_helper = true;
+		is_num = true;
 		errors += stmt();
 		errors += stmt_list();
-		cg->WriteCode(0, tempobj.front());
-		tempobj.pop_front();
-		cg->WriteCode(0, " - ");
-		cg->WriteCode(0, tempobj.front());
-		tempobj.pop_front();
-		cg->WriteCode(0,";\n");
+		is_num = false;
 
 	}
 	else if(token == DIV_T){
 		// <action> -> DIV_T <stmt>
 		p2 << "Using rule 38\n";
 		token = lex->GetToken();
+		div_helper = true;
+		is_num = true;
 		errors += stmt();
 		errors += stmt_list();
-		cg->WriteCode(0, tempobj.front());
-		tempobj.pop_front();
-		cg->WriteCode(0, " / ");
-		cg->WriteCode(0, tempobj.front());
-		tempobj.pop_front();
-		cg->WriteCode(0,";\n");
+		is_num = false;
 	}
 	else if(token == MULT_T){
 		// <action> -> MULT_T
 		p2 << "Using rule 39\n";
 		token = lex->GetToken();
+		mult_helper = true;
+		is_num = true;
 		errors += stmt_list();
-		cg->WriteCode(0, tempobj.front());
-		tempobj.pop_front();
-		cg->WriteCode(0, " * ");
-		cg->WriteCode(0, tempobj.front());
-		tempobj.pop_front();
-		cg->WriteCode(0,";\n");
+		is_num = false;
 	}
 	else if(token == MODULO_T){
 		// <action> -> MODULO_T <stmt> <stmt>
@@ -359,6 +352,7 @@ int SyntacticalAnalyzer::action () {
 		cg->WriteCode(1,"cout << ");
 		token = lex->GetToken();
 		errors += stmt();
+		cg->WriteCode(0, ";\n");
 	}
 	else if(token == NEWLINE_T){
 		// <action> -> NEWLINE_T
@@ -369,7 +363,7 @@ int SyntacticalAnalyzer::action () {
 		errors++;
 		lex->ReportError(lexeme + " unexpected");
 	}
-
+	
 	return errors;
 }
 
@@ -595,15 +589,31 @@ int SyntacticalAnalyzer::stmt_pair(){
 
 int SyntacticalAnalyzer::literal(){
     int errors = 0;
-
     if(token == NUMLIT_T){
       // <literal> -> NUMLIT_T
       p2 << "Using rule 10\n";
 	  string temp = "Object(" + lex->GetLexeme() + ")";
-	  tempobj.push_back(temp);
-	  //cg->WriteCode(0,"Object(");
-	  //cg->WriteCode(0,lex->GetLexeme());
-	  //cg->WriteCode(0,")");
+	
+	  cg->WriteCode(0,"Object(");
+	  cg->WriteCode(0,lex->GetLexeme());
+	  cg->WriteCode(0,")");
+	  if(plus_helper == true) {
+		cg->WriteCode(0, " + ");
+		plus_helper = false;
+	  }
+	  if(minus_helper == true) {
+		cg->WriteCode(0, " - ");
+		minus_helper = false;
+	  }
+	  if(mult_helper == true) {
+		cg->WriteCode(0, " * ");
+		mult_helper = false;
+	  }
+	  if(div_helper == true) {
+		cg->WriteCode(0, " / ");
+		div_helper = false;
+	  }
+
       token = lex->GetToken();
     }
     else if(token == STRLIT_T){
@@ -645,12 +655,16 @@ int SyntacticalAnalyzer::stmt_list (){
   if(token == IDENT_T || token == LPAREN_T || token == NUMLIT_T || token == STRLIT_T || token == SQUOTE_T){
     // <stmt_list> -> <stmt> <stmt_list>
     p2 << "Using rule 5\n";
+	if(token == LPAREN_T && is_num == true)
+		cg->WriteCode (0, "(");
     errors += stmt();
     errors += stmt_list();
   }
   else if(token == RPAREN_T){
     // <stmt_list> -> {}
     p2 << "Using rule 6\n";
+	if(is_num == true)
+		cg->WriteCode(0, ")");
   }
   else{
     errors++;

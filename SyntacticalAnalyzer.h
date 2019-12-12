@@ -41,6 +41,11 @@ class SyntacticalAnalyzer
 	int action ();
 	int any_other_token ();
 
+	bool plus_helper;
+	bool mult_helper;
+	bool div_helper;
+	bool minus_helper;
+	bool is_num;
 	ofstream p2;
 	deque<string> tempobj;
 };
