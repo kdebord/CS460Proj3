@@ -49,6 +49,9 @@ class SyntacticalAnalyzer
 	bool mult_param;
 	bool is_nested;
 	int in_plus;
+	int in_minus;
+	int in_mult;
+	int in_div;
 	ofstream p2;
 	deque<string> tempobj;
 };

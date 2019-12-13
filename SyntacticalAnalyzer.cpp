@@ -40,10 +40,12 @@ SyntacticalAnalyzer::SyntacticalAnalyzer (char * filename)
 	mult_helper = false;
 	div_helper = false;
 	minus_helper = false;
-	is_num = false;
 	mult_param = false;
 	is_nested = false;
 	in_plus = 0;
+	in_minus = 0;
+	in_mult = 0;
+	in_div = 0;
 	int totalErrors = program ();
 }
 
@@ -268,38 +270,39 @@ int SyntacticalAnalyzer::action () {
 		minus_helper = false;
 		mult_helper = false;
 		div_helper = false;
-		is_num = true;
 		mult_param = true;
 
 		cg->WriteCode(0, "(");
 
 
 		errors += stmt_list();
+
+
+
 		plus_helper = false;
-		//if(is_nested == true)
-		//{
-		//	cg->WriteCode(0, ")");
-		//	is_nested = false;
-		//}
 		cg->WriteCode(0, ")");
 		if(in_plus > 1) {
 			cg->WriteCode(0, " + ");
 			in_plus--;
 		}
-			in_plus--;
-		is_num = false;
+		in_plus--;
+
+
+
 
 	}
 	else if(token == MINUS_T){
 		// <action> -> MINUS_T <stmt>
 		p2 << "Using rule 37\n";
 		token = lex->GetToken();
+
+		in_minus++;
+
 		minus_helper = true;
 		mult_helper = false;
 		div_helper = false;
 		plus_helper = false;
 		mult_param = true;
-		is_num = true;
 
 		cg->WriteCode(0, "(");
 
@@ -307,20 +310,25 @@ int SyntacticalAnalyzer::action () {
 		errors += stmt_list();
 		
 		cg->WriteCode(0, ")");
-
+		if(in_minus > 1) {
+			cg->WriteCode(0, " - ");
+			in_minus--;
+		}
+		in_minus--;
 		minus_helper = false;
-		is_num = false;
 
 	}
 	else if(token == DIV_T){
 		// <action> -> DIV_T <stmt>
 		p2 << "Using rule 38\n";
 		token = lex->GetToken();
+
+		in_div++;
+
 		div_helper = true;
 		minus_helper = false;
 		mult_helper = false;
 		plus_helper = false;
-		is_num = true;
 		mult_param = true;
 
 		cg->WriteCode(0, "(");
@@ -329,28 +337,47 @@ int SyntacticalAnalyzer::action () {
 
 		cg->WriteCode(0, ")");
 
+		if(in_div > 1)
+		{
+			cg->WriteCode(0, " / ");
+			in_div--;
+		}
+		in_div--;
+
+
+
+
 		div_helper = false;
-		is_num = false;
 	}
 	else if(token == MULT_T){
 		// <action> -> MULT_T
 		p2 << "Using rule 39\n";
 		token = lex->GetToken();
+
+		in_mult++;
+
 		mult_helper = true;
 		plus_helper = false;
 		minus_helper = false;
 		div_helper = false;
-		is_num = true;
 		mult_param = true;
 
 		cg->WriteCode(0, "(");
 
 		errors += stmt_list();
 
+
+
 		cg->WriteCode(0, ")");
 
+		if(in_mult > 1)
+		{
+			cg->WriteCode(0, " * ");
+			in_mult--;
+		}
+		in_mult--;
+
 		mult_helper = false;
-		is_num = false;
 	}
 	else if(token == MODULO_T){
 		// <action> -> MODULO_T <stmt> <stmt>
@@ -410,6 +437,11 @@ int SyntacticalAnalyzer::action () {
 		token = lex->GetToken();
 		errors += stmt();
 		cg->WriteCode(0, ";\n");
+		in_plus = 0;
+		in_minus = 0;
+		in_div = 0;
+		in_mult = 0;
+
 	}
 	else if(token == NEWLINE_T){
 		// <action> -> NEWLINE_T
