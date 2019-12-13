@@ -1,6 +1,11 @@
 (define (main)
-	(display (- (+ 2 3) (+ 5 4)))
-	(newline)
+	(display (+ 5 2 3))  (newline)
+	(display (+ 5 (+ 2 3)))  (newline)
+	(display (- 5 (- 2 3)))  (newline)
+	(display (+ 5 (- 2 3)))  (newline)
+	(display (+ (+ 5 4) (+ 6 7)))  (newline)
+	(display (- (- 3 2) (- 9 1)))  (newline)
+	(display (+ (+ 1 2 3) (- 5 4 2) (+ 6 5)))  (newline)
 )
 
 (main)

@@ -277,7 +277,7 @@ int SyntacticalAnalyzer::action () {
 
 		errors += stmt_list();
 
-
+		in_plus--;
 
 		plus_helper = false;
 		cg->WriteCode(0, ")");
@@ -285,8 +285,18 @@ int SyntacticalAnalyzer::action () {
 			cg->WriteCode(0, " + ");
 			in_plus--;
 		}
-		in_plus--;
-
+		else if(in_minus > 0) {
+			cg->WriteCode(0, " - ");
+			in_minus--;
+		}
+		else if(in_div > 0) {
+			cg->WriteCode(0, " / ");
+			in_div--;
+		}
+		else if(in_mult > 0) {
+			cg->WriteCode(0, " * ");
+			in_mult--;
+		}
 
 
 
@@ -307,16 +317,29 @@ int SyntacticalAnalyzer::action () {
 		cg->WriteCode(0, "(");
 
 		errors += stmt();
+
 		errors += stmt_list();
 		
 		cg->WriteCode(0, ")");
+		
+		in_minus--;
 		if(in_minus > 1) {
 			cg->WriteCode(0, " - ");
 			in_minus--;
 		}
-		in_minus--;
+		else if(in_plus > 0) {
+			cg->WriteCode(0, " + ");
+			in_plus--;
+		}
+		else if(in_div > 0) {
+			cg->WriteCode(0, " / ");
+			in_div--;
+		}
+		else if(in_mult > 0) {
+			cg->WriteCode(0, " * ");
+			in_mult--;
+		}
 		minus_helper = false;
-
 	}
 	else if(token == DIV_T){
 		// <action> -> DIV_T <stmt>
